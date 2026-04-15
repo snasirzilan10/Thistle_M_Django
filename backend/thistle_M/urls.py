@@ -1,8 +1,12 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.http import JsonResponse
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
-# Root health-check endpoint (clean professional root)
+# Root health-check endpoint
 def root_view(request):
     return JsonResponse({
         "status": "ok",
@@ -11,7 +15,7 @@ def root_view(request):
         "version": "1.0"
     })
 
-# Test connection endpoint (distinct from root)
+# Test connection endpoint
 def test_connection(request):
     return JsonResponse({
         "status": "success",
@@ -22,6 +26,13 @@ def test_connection(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/test/', test_connection, name='test-connection'),  # Specific path FIRST
-    path('', root_view, name='root'),                           # Root path LAST (critical fix)
+    path('api/products/', include('products.urls')),
+    path('api/cart/', include('cart.urls')),
+    path('api/test/', test_connection, name='test-connection'),
+    
+    # JWT Authentication Endpoints (new)
+    path('api/auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
+    path('', root_view, name='root'),   # MUST be last
 ]
