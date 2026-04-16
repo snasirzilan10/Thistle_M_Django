@@ -18,17 +18,17 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 function App() {
   return (
     <Routes>
-      {/* Public landing page (no navbar/footer for clean hero) */}
+      {/* === PUBLIC LANDING PAGE (NO NAVBAR, NO REDIRECT) === */}
       <Route path="/" element={<HomePage />} />
 
-      {/* All other pages wrapped in MainLayout */}
+      {/* === ALL OTHER PAGES use MainLayout (Navbar + Footer) === */}
       <Route element={<MainLayout />}>
         <Route path="/shop" element={<ShopPage />} />
         <Route path="/product/:id" element={<ProductDetailPage />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/wishlist" element={<WishlistPage />} />
 
-        {/* Protected routes */}
+        {/* Protected routes only */}
         <Route
           path="/checkout"
           element={
@@ -54,7 +54,7 @@ function App() {
           }
         />
 
-        {/* Auth pages (public) */}
+        {/* Public auth pages */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 

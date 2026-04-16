@@ -1,10 +1,9 @@
-import { Product } from '../types';
+import type { Product } from '../types';
 
 interface Props {
   product: Product;
   onAddToCart: (product: Product) => void;
 }
-
 const ProductCard = ({ product, onAddToCart }: Props) => {
   return (
     <div className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100">
