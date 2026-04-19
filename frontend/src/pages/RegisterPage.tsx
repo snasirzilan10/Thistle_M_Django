@@ -1,26 +1,82 @@
-import { useRegister } from '../features/auth/hooks/useAuth';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../features/auth/hooks/useAuth';
 
 const RegisterPage = () => {
-  const registerMutation = useRegister();
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const { register } = useAuth();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ full_name: '', email: '', password: '' });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    registerMutation.mutate(formData, { onSuccess: () => navigate('/login') });
+    register.mutate({ username, email, password }, {
+      onSuccess: () => {
+        alert('✅ Registration successful! Please login now.');
+        navigate('/login');
+      },
+    });
   };
 
+  // Safe error handling - fixes TS2339
+  let errorMessage = 'Registration failed';
+  if (register.error) {
+    const err = register.error as any;
+    errorMessage = err?.response?.data?.error 
+      || err?.message 
+      || 'Something went wrong';
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-20">
-      <form onSubmit={handleSubmit} className="bg-white p-10 rounded-3xl shadow-xl w-full max-w-md">
-        <h1 className="text-3xl font-bold mb-8 text-center">Create Account</h1>
-        <input type="text" placeholder="Full Name" onChange={e => setFormData({...formData, full_name: e.target.value})} className="w-full px-6 py-5 rounded-2xl border mb-4" />
-        <input type="email" placeholder="Email" onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-6 py-5 rounded-2xl border mb-4" />
-        <input type="password" placeholder="Password" onChange={e => setFormData({...formData, password: e.target.value})} className="w-full px-6 py-5 rounded-2xl border mb-8" />
-        <button type="submit" className="w-full bg-black text-white py-5 rounded-3xl text-lg font-semibold">Create Account</button>
-      </form>
+    <div className="min-h-screen bg-white flex items-center justify-center pt-20">
+      <div className="max-w-md w-full px-6">
+        <h1 className="text-4xl font-bold text-center mb-8">Create Account</h1>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full px-6 py-4 border border-gray-300 rounded-3xl focus:outline-none focus:border-black"
+            required
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-6 py-4 border border-gray-300 rounded-3xl focus:outline-none focus:border-black"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-6 py-4 border border-gray-300 rounded-3xl focus:outline-none focus:border-black"
+            required
+          />
+          <button
+            type="submit"
+            disabled={register.isPending}
+            className="w-full bg-black text-white py-6 text-xl font-semibold rounded-3xl hover:bg-gray-800"
+          >
+            {register.isPending ? 'Creating account...' : 'Create Account'}
+          </button>
+        </form>
+
+        {register.isError && (
+          <p className="text-red-500 text-center mt-4 font-medium">
+            ❌ {errorMessage}
+          </p>
+        )}
+
+        <p className="text-center mt-8">
+          Already have an account?{' '}
+          <Link to="/login" className="text-black font-medium underline">Sign in</Link>
+        </p>
+      </div>
     </div>
   );
 };

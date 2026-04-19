@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../../features/cart/hooks/useCart';
 
 const Navbar = () => {
-  const { data: cart } = useCart();
+  // Single hook call (FAANG best practice + fixes TS6133)
+  const { cartCount } = useCart();
 
   return (
     <nav className="bg-white border-b sticky top-0 z-50 shadow-sm">
@@ -26,7 +27,7 @@ const Navbar = () => {
             >
               <span>Cart</span>
               <span className="bg-white text-black text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
-                {cart?.total_items || 0}
+                {cartCount}
               </span>
               <span className="text-lg">🛒</span>
             </Link>

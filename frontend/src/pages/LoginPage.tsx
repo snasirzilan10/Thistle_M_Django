@@ -1,26 +1,55 @@
-import { useLogin } from '../features/auth/hooks/useAuth';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../features/auth/hooks/useAuth';
 
 const LoginPage = () => {
-  const loginMutation = useLogin();
-  const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    loginMutation.mutate({ email, password }, { onSuccess: () => navigate('/') });
+    login.mutate({ username, password }, {
+      onSuccess: () => navigate('/shop'),
+    });
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center pt-20">
-      <form onSubmit={handleSubmit} className="bg-white p-10 rounded-3xl shadow-xl w-full max-w-md">
-        <h1 className="text-3xl font-bold mb-8 text-center">Sign In</h1>
-        <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="w-full px-6 py-5 rounded-2xl border mb-4" />
-        <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="w-full px-6 py-5 rounded-2xl border mb-8" />
-        <button type="submit" className="w-full bg-black text-white py-5 rounded-3xl text-lg font-semibold">Sign In</button>
-      </form>
+    <div className="min-h-screen bg-white flex items-center justify-center pt-20">
+      <div className="max-w-md w-full px-6">
+        <h1 className="text-4xl font-bold text-center mb-8">Sign In</h1>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full px-6 py-4 border border-gray-300 rounded-3xl focus:outline-none focus:border-black"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-6 py-4 border border-gray-300 rounded-3xl focus:outline-none focus:border-black"
+            required
+          />
+          <button
+            type="submit"
+            disabled={login.isPending}
+            className="w-full bg-black text-white py-6 text-xl font-semibold rounded-3xl hover:bg-gray-800"
+          >
+            {login.isPending ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
+        <p className="text-center mt-8">
+          Don't have an account?{' '}
+          <Link to="/register" className="text-black font-medium underline">Register here</Link>
+        </p>
+        {login.isError && <p className="text-red-500 text-center mt-4">Invalid credentials</p>}
+      </div>
     </div>
   );
 };
