@@ -3,7 +3,7 @@ import type { CartItem } from '../features/cart/types';
 
 export const calculateCartSubtotal = (items: CartItem[]): number => {
   return items.reduce((total, item) => {
-    return total + item.product.final_price * item.quantity;
+    return total + parseFloat(item.product.final_price) * item.quantity;
   }, 0);
 };
 

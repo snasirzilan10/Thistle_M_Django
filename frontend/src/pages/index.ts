@@ -9,8 +9,6 @@ export { default as OrdersPage } from './OrdersPage';
 export { default as LoginPage } from './LoginPage';
 export { default as RegisterPage } from './RegisterPage';
 export { default as NotFoundPage } from './NotFoundPage';
-
-// NEW AUTH PAGES
 export { default as ForgotPasswordPage } from './ForgotPasswordPage';
 export { default as ResetPasswordPage } from './ResetPasswordPage';
 export { default as EmailVerificationPage } from './EmailVerificationPage';

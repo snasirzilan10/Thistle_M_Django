@@ -1,33 +1,43 @@
 from django.db import models
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
+from django.conf import settings
+from products.models import Product  # string reference already safe
 
 class Cart(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='cart')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cart')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    def __str__(self):
-        return f"Cart for {self.user.email}"
-
     class Meta:
-        verbose_name = "Cart"
-        verbose_name_plural = "Carts"
-
-class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey('products.Product', on_delete=models.CASCADE)   # ← Fixed with string
-    quantity = models.PositiveIntegerField(default=1)
-    added_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        unique_together = ('cart', 'product')
-        ordering = ['-added_at']
+        verbose_name = 'Cart'
+        verbose_name_plural = 'Carts'
 
     def __str__(self):
-        return f"{self.quantity}x {self.product.name if hasattr(self, 'product') else 'Product'} in {self.cart.user.email}"
+        return f"Cart for {self.user.username}"
+
+    @property
+    def total_items(self):
+        return self.items.count()
 
     @property
     def total_price(self):
-        return self.product.price * self.quantity if hasattr(self, 'product') else 0
+        return sum(item.subtotal for item in self.items.all())
+
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey('products.Product', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    selected_size = models.CharField(max_length=50, blank=True, null=True)
+    selected_color = models.CharField(max_length=100, blank=True, null=True)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('cart', 'product', 'selected_size', 'selected_color')  # prevents duplicate variants
+        ordering = ['-added_at']
+
+    def __str__(self):
+        return f"{self.quantity}x {self.product.name} ({self.selected_size}/{self.selected_color})"
+
+    @property
+    def subtotal(self):
+        return self.quantity * self.product.final_price

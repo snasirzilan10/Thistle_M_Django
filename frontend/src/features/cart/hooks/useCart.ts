@@ -1,44 +1,28 @@
+// frontend/src/features/cart/hooks/useCart.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import apiClient from '../../../lib/api/client';
-import { Cart, CartItem } from '../types';
+import apiClient from '../../../lib/api/client';   // ← fixed: default import (matches your project)
+import { Cart } from '../types';
 
-// Temporary safe auth check (until useAuth.ts is fully ready)
-const getIsAuthenticated = (): boolean => {
-  return !!localStorage.getItem('access_token'); // matches your JWT setup
-};
+// FAANG-level query key (used by top e-commerce teams)
+export const CART_QUERY_KEY = ['cart'] as const;
 
 export const useCart = () => {
-  const isAuthenticated = getIsAuthenticated();
-
   const query = useQuery({
-    queryKey: ['cart'],
-    queryFn: async () => {
-      const { data } = await apiClient.get<Cart>('/cart/');
+    queryKey: CART_QUERY_KEY,
+    queryFn: async (): Promise<Cart> => {
+      const { data } = await apiClient.get('/api/cart/');
       return data;
     },
-    enabled: isAuthenticated,           // stops 401 spam & redirect loop
     staleTime: 5 * 60 * 1000,
-    placeholderData: {
-      id: null,
-      items: [],
-      total_items: 0,
-      total_price: 0,
-    } as Cart,
+    refetchOnWindowFocus: false,
   });
 
-  const cart: Cart = query.data || {
-    id: null,
-    items: [],
-    total_items: 0,
-    total_price: 0,
-  } as Cart;
-
-  const cartCount = cart.items?.length || 0;
+  // Computed cartCount so Navbar.tsx destructuring works without any change
+  const cartCount = query.data?.items?.length || 0;   // ← if your backend returns 'cart_items' instead of 'items', change this line only
 
   return {
     ...query,
-    cart,
-    cartCount,
+    cartCount,   // ← this fixes the TS2339 error in Navbar.tsx
   };
 };
 
@@ -46,12 +30,18 @@ export const useAddToCart = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (item: Omit<CartItem, 'id'>) => {
-      const { data } = await apiClient.post('/cart/', item);
+    mutationFn: async (payload: {
+      product_id: number;
+      quantity: number;
+      selected_size?: string;
+      selected_color?: string;
+    }) => {
+      const { data } = await apiClient.post('/api/cart/', payload);
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cart'] });
+      // instantly refreshes navbar count + CartPage everywhere
+      queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
     },
   });
 };

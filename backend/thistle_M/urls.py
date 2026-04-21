@@ -125,6 +125,7 @@ urlpatterns = [
     path('api/auth/email-verify/', email_verify),
     path('api/auth/phone-verify-request/', phone_verify_request),
     path('api/auth/phone-verify-confirm/', phone_verify_confirm),
-    
+    path('api/cart/', include('cart.urls')),
+    path('api/orders/', include('orders.urls')),
     path('', root_view),
 ]

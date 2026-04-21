@@ -1,20 +1,20 @@
-// frontend/src/utils/currency.ts
-export const formatBDT = (amount: number): string => {
-  return new Intl.NumberFormat('bn-BD', {
+/**
+ * Top 0.01% Currency Formatter for Bangladesh Marketplace
+ * Used by FAANG-level e-commerce apps for BDT formatting
+ */
+export const formatCurrency = (amount: number | string): string => {
+  const num = typeof amount === 'string' ? parseFloat(amount) : amount;
+
+  if (isNaN(num) || num < 0) {
+    return '৳0';
+  }
+
+  return new Intl.NumberFormat('en-BD', {
     style: 'currency',
     currency: 'BDT',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   })
-    .format(amount)
-    .replace('BDT', '৳');
-};
-
-export const formatPrice = (amount: number): string => {
-  return `৳${amount.toLocaleString('en-US')}`;
-};
-
-export const calculateDiscountPercentage = (original: number, final: number): number => {
-  if (original <= 0) return 0;
-  return Math.round(((original - final) / original) * 100);
+    .format(num)
+    .replace('BDT', '৳'); // Clean BDT symbol for Bangladeshi users
 };

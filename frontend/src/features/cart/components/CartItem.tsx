@@ -22,7 +22,7 @@ const CartItemComponent = ({ item, onUpdateQuantity, onRemove }: Props) => {
           <button onClick={() => onRemove(item.id)} className="text-red-500 text-sm font-medium">Remove</button>
         </div>
       </div>
-      <div className="text-right font-semibold">৳{item.product.final_price * item.quantity}</div>
+      <div className="text-right font-semibold">৳{parseFloat(item.product.final_price) * item.quantity}</div>
     </div>
   );
 };

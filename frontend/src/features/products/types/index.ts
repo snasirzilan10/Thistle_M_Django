@@ -1,22 +1,16 @@
 export interface Product {
   id: number;
+  category: number;
+  category_name: string;
   name: string;
+  slug: string;
   description: string;
-  price: number;
-  final_price: number;
-  image: string;
-  category: string;
+  price: string;           // backend sends as string
+  discount_price: string;  // ← this is what your API actually returns
+  final_price: string;
+  stock: number;
   available_sizes: string[];
   available_colors: string[];
-  stock: number;
-  rating: number;
-  review_count: number;
-}
-
-export interface ProductFilters {
-  category?: string;
-  min_price?: number;
-  max_price?: number;
-  size?: string;
-  color?: string;
+  image: string;
+  is_active: boolean;
 }

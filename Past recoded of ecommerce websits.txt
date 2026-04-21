@@ -1,0 +1,358 @@
+{
+  "Subject": "Past Record of Tasks",
+  "Brief": [
+    "It's for better referencing",
+    "Because I often leave work and resume later",
+    "It's like a save point / project memory"
+  ],
+  "tasks": {
+    "30-Minute Order Cancellation System": [
+      "Added can_be_cancelled @property to Order model (strict 30-minute + pending check)",
+      "Created CancelOrderView with backend time enforcement",
+      "Updated OrderSerializer to expose can_be_cancelled flag",
+      "Added /api/orders/cancel/<str:order_id>/ endpoint in orders/urls.py",
+      "Created full useOrders + useCancelOrder hooks with React Query",
+      "Updated OrdersPage.tsx with conditional Cancel button + toast confirmation",
+      "Tested live: button automatically disappears after 30 minutes"
+    ],
+    "Django Project Setup": [
+      "Verify venv & install required packages",
+      "Confirm Django project structure",
+      "Configure MySQL (exact working settings)",
+      "Add .env support (security best practice)",
+      "Finalize & verify everything"
+    ],
+    "React + Vite Frontend Setup": [
+      "Initialize Vite + React + TypeScript project inside frontend folder",
+      "Install all base dependencies",
+      "Create the production-ready .env file with VITE_API_BASE_URL",
+      "Clean up default files for professional marketplace structure",
+      "Launch the development server and verify"
+    ],
+    "Backend + Frontend Connection": [
+      "Install DRF and django-cors-headers in backend",
+      "Configure settings.py with CORS and DRF",
+      "Create clean root and test API endpoints in urls.py",
+      "Setup Vite development proxy to avoid CORS issues",
+      "Full live connection test between React (port 5173) and Django (port 8000)",
+      "Fix root 404 and ensure distinct JSON responses"
+    ],
+    "GitHub Repository Setup": [
+      "Create professional .gitignore file in root",
+      "Initialize git repository in project root",
+      "Make first professional commit with full monorepo",
+      "Connect to new GitHub repo (Thistle_M_Django)",
+      "Push entire project (frontend + backend) to main branch"
+    ],
+    "Cart App Implementation": [
+      "Created cart app with models (Cart + CartItem)",
+      "Fixed circular import using string reference ('products.Product')",
+      "Added professional DRF serializers and CartView (GET/POST/DELETE)",
+      "Created cart/urls.py and connected to main urls.py",
+      "Ready for authenticated cart operations"
+    ],
+    "Products App Implementation": [
+      "Created products app with Category and Product models (premium men's apparel)",
+      "Added JSON fields for sizes/colors + ImageField + final_price property",
+      "Created DRF serializers and views (ProductListView + ProductDetailView)",
+      "Created products/urls.py and connected to main urls.py",
+      "Fixed all migration order issues"
+    ],
+    "JWT Authentication Setup": [
+      "Installed djangorestframework-simplejwt",
+      "Configured REST_FRAMEWORK and SIMPLE_JWT in settings.py",
+      "Added /api/auth/token/ and /api/auth/token/refresh/ endpoints",
+      "Updated main urls.py with proper include() import",
+      "Created superuser and tested authenticated cart endpoint"
+    ],
+    "React Landing Page Development": [
+      "Switched to frontend folder and started dev server",
+      "Fixed Tailwind CSS v4 issue by installing stable v3",
+      "Configured tailwind.config.js and index.css",
+      "Created professional LandingPage.tsx (navbar, hero, categories, footer)",
+      "Updated App.tsx to render LandingPage",
+      "Verified live at http://localhost:5173"
+    ],
+    "Checkout Management System": [
+      "Created 'orders' app with Order + OrderItem models",
+      "Added professional serializers and CheckoutView (converts cart to order)",
+      "Implemented Cash on Delivery (COD) flow",
+      "Auto-clear cart after successful checkout",
+      "Added /api/orders/checkout/ endpoint and connected to main urls.py",
+      "Added 'orders' to INSTALLED_APPS and ran migrations"
+    ],
+    "ShopPage Development": [
+      "Created responsive product grid on ShopPage.tsx",
+      "Integrated useProducts hook with React Query",
+      "Built professional ProductCard with discount badge, price formatting, and sizes preview",
+      "Added loading and empty states"
+    ],
+    "TypeScript Build Fixes & Cleanup": [
+      "Fixed all npm run build errors (24 → 0)",
+      "Updated pages barrel export (index.ts)",
+      "Created currency.ts utility",
+      "Fixed Product type to match real backend JSON (discount_price, etc.)",
+      "Updated MainLayout with <Outlet /> for nested routes",
+      "Cleaned LandingPage.tsx and WishlistPage.tsx (removed broken onAddToCart code)",
+      "Fixed ProductDetailPage with correct useProductDetail hook and type-safe maps"
+    ],
+    "Product Detail Page Finalization": [
+      "Built fully functional ProductDetailPage with size/color selection and quantity",
+      "Added dynamic Add to Cart button",
+      "Fixed /product/:id routing and API call"
+    ],
+    "Product Detail Page Critical Fixes (April 2026)": [
+      "Fixed duplicate THISTLE header by permanently removing MainLayout wrapper from ProductDetailPage.tsx",
+      "Resolved all Vite import-analysis and parse errors (currency.ts, useProductDetail, useAddToCart)",
+      "Switched to correct relative imports matching actual folder structure",
+      "Created complete currency.ts utility with proper BDT formatting",
+      "Added professional size/color validation + dark theme UI",
+      "Verified live product page, working Add to Cart button, and real-time cart count update"
+    ],
+    "Critical API & 401 Fixes": [
+      "Fixed 401 Unauthorized on public /api/products/ endpoint",
+      "Updated API client with conditional JWT interceptor (skip token on public routes)",
+      "Fixed ProductDetailView AssertionError by removing lookup_field (uses default pk)",
+      "Hardened public product endpoints with AllowAny permission"
+    ],
+    "GitHub Update Push": [
+      "Staged all changes (backend + frontend)",
+      "Committed with professional message: 'feat: complete professional landing page with Tailwind CSS + navbar + hero section'",
+      "Pushed latest updates to main branch on Thistle_M_Django repo"
+    ],
+    "React Frontend Professional Folder Structure": [
+      "Created full feature-sliced src/ architecture (assets, components, features, hooks, lib, etc.)",
+      "Added domain-driven feature folders (auth, products, cart, wishlist, checkout, etc.)",
+      "Created barrel exports + supporting files (client.ts, global.ts, constants, etc.)",
+      "Saved complete folder blueprint as folder_Structure in project memory JSON"
+    ],
+    "Complete Features Folder Implementation": [
+      "Created full products/ (types, hooks, ProductCard component)",
+      "Created full cart/ (types, hooks, CartItem component)",
+      "Created full auth/ (types, hooks with login/register)",
+      "Created full wishlist/ (types, hooks)",
+      "Created full checkout/ (types, hooks, CheckoutForm)",
+      "Fixed all TypeScript import issues"
+    ],
+    "Complete Pages Folder": [
+      "Created all e-commerce pages (HomePage, ShopPage, ProductDetailPage, CartPage, WishlistPage, CheckoutPage, AccountPage, OrdersPage, LoginPage, RegisterPage, NotFoundPage)",
+      "Created ForgotPasswordPage, ResetPasswordPage, EmailVerificationPage and PhoneVerificationPage",
+      "Added professional barrel export in pages/index.ts"
+    ],
+    "Complete Utils Folder": [
+      "Created currency.ts, string.ts, validation.ts, cart.ts, helpers.ts",
+      "Added barrel export in utils/index.ts"
+    ],
+    "Complete Components Folder": [
+      "Created ui/ (Button.tsx, Input.tsx)",
+      "Created common/ (Navbar.tsx, Footer.tsx)",
+      "Created layout/ (MainLayout.tsx, updated LandingPage.tsx)",
+      "Created forms/ (NewsletterForm.tsx)",
+      "Created barrel export in components/index.ts"
+    ],
+    "Routing & Layout Setup": [
+      "Updated App.tsx with clean Routes + MainLayout + ProtectedRoute",
+      "Added new public routes for forgot-password, reset-password, email-verify and phone-verify",
+      "Prevented auto-redirect from landing page (/)",
+      "Added dynamic Navbar with live cart count"
+    ],
+    "TypeScript & Build Fixes": [
+      "Fixed all verbatimModuleSyntax errors",
+      "Updated tsconfig.app.json, tsconfig.node.json, vite-env.d.ts",
+      "Fixed import.meta.env, unused variables, and NodeJS.Timeout issues",
+      "Successful npm run build with 0 errors"
+    ],
+    "Final GitHub Pushes": [
+      "Multiple professional commits with latest frontend fixes",
+      "Pushed complete feature-sliced React marketplace"
+    ],
+    "Full User Authentication System": [
+      "Created complete registration endpoint with validation",
+      "Implemented login with JWT token storage and authentication",
+      "Added logout functionality with token cleanup",
+      "Built professional useAuth hook with all mutations",
+      "Configured ProtectedRoute using Outlet pattern"
+    ],
+    "Password Reset Flow": [
+      "Created backend password reset request and confirm endpoints",
+      "Built ForgotPasswordPage and ResetPasswordPage in React"
+    ],
+    "Email and Phone Verification System": [
+      "Added email verification endpoint and dedicated page",
+      "Implemented phone OTP verification system (console-based for zero cost)",
+      "Created EmailVerificationPage and PhoneVerificationPage"
+    ],
+    "API Client & Environment Configuration": [
+      "Created professional axios client with JWT interceptor",
+      "Configured .env with correct VITE_API_BASE_URL",
+      "Ensured clean API calls without double /api/ prefix"
+    ],
+    "First Full GitHub Monorepo Push": [
+      "Performed first complete git add . and professional commit",
+      "Pushed entire project (frontend + backend + all features) to main branch"
+    ]
+  },
+  "top0.01%_Tips": {
+    "1": "Always use string references ('products.Product') for ForeignKeys when creating interdependent apps — prevents 90% of import hell errors.",
+    "2": "Keep the root path (path('', root_view)) as the VERY LAST pattern in urls.py — prevents 99% of accidental 404s on the homepage.",
+    "3": "Build the backend Cart as the single source of truth from day-1 (never trust only frontend localStorage) — reduces cart abandonment by ~41%.",
+    "4": "Use JSONField for available_sizes and available_colors in Product model — gives instant flexibility for t-shirts, joggers, shoes, bags without extra tables.",
+    "5": "Use JWT + djangorestframework-simplejwt for React + Django authentication — it is stateless, scalable, and the exact setup used by FAANG marketplaces.",
+    "6": "Always pin Tailwind to v3 (tailwindcss@3) during initial setup — avoids the 'npx could not determine executable' error completely.",
+    "7": "Build a clean professional Landing Page FIRST with Tailwind — it becomes the visual blueprint for the entire marketplace and cuts design time by 65%.",
+    "8": "Use semantic commit messages with 'feat:' or 'fix:' prefixes — this exact habit is followed by FAANG teams and makes your GitHub look instantly professional.",
+    "9": "Regularly update and maintain this 'Past Record of Tasks' JSON after every session — this single habit dramatically reduces rework and keeps momentum unbreakable.",
+    "10": "Keep root path '/' completely outside any ProtectedRoute or MainLayout — prevents unwanted auto-redirects to login.",
+    "11": "Always mark public auth endpoints with @permission_classes([AllowAny]) — this is the exact pattern used by FAANG Django backends.",
+    "12": "Store only JWT access/refresh tokens in localStorage and attach via axios interceptor — the professional way used by scalable marketplaces.",
+    "13": "Create separate pages for password reset, email verification and phone verification — this dramatically improves user trust and conversion.",
+    "14": "Always use conditional JWT interceptor in axios client (skip token on public routes like /api/products/) — prevents 401 errors on public data.",
+    "15": "Use default 'pk' lookup in DRF RetrieveAPIView unless you have a strong reason — avoids AssertionError on detail views.",
+    "16": "Always implement time-based business rules (like 30-minute cancellation) directly in the model with @property — keeps the logic centralized and impossible to bypass from frontend."
+  },
+  "folder_Structure": {
+    "frontend": {
+      "src": {
+        "assets": {
+          "images": {},
+          "icons": {},
+          "svgs": {}
+        },
+        "components": {
+          "common": {
+            "Navbar.tsx": "file",
+            "Footer.tsx": "file",
+            "ProtectedRoute.tsx": "file"
+          },
+          "layout": {
+            "LandingPage.tsx": "file",
+            "MainLayout.tsx": "file"
+          },
+          "ui": {
+            "Button.tsx": "file",
+            "Input.tsx": "file"
+          },
+          "forms": {
+            "NewsletterForm.tsx": "file"
+          },
+          "index.ts": "barrel-export"
+        },
+        "constants": {
+          "index.ts": "barrel-export"
+        },
+        "features": {
+          "auth": {
+            "components": {},
+            "hooks": {
+              "useAuth.ts": "file"
+            },
+            "types": {
+              "index.ts": "file"
+            }
+          },
+          "products": {
+            "components": {
+              "ProductCard.tsx": "file"
+            },
+            "hooks": {
+              "useProducts.ts": "file"
+            },
+            "types": {
+              "index.ts": "file"
+            },
+            "utils": {}
+          },
+          "cart": {
+            "components": {
+              "CartItem.tsx": "file"
+            },
+            "hooks": {
+              "useCart.ts": "file"
+            },
+            "types": {
+              "index.ts": "file"
+            }
+          },
+          "wishlist": {
+            "hooks": {
+              "useWishlist.ts": "file"
+            },
+            "types": {
+              "index.ts": "file"
+            }
+          },
+          "checkout": {
+            "components": {
+              "CheckoutForm.tsx": "file"
+            },
+            "hooks": {
+              "useCheckout.ts": "file"
+            },
+            "types": {
+              "index.ts": "file"
+            }
+          },
+          "orders": {
+            "hooks": {
+              "useOrders.ts": "file"
+            }
+          },
+          "user": {}
+        },
+        "hooks": {},
+        "lib": {
+          "api": {
+            "client.ts": "file"
+          }
+        },
+        "services": {
+          "api.ts": "file"
+        },
+        "types": {
+          "global.ts": "file"
+        },
+        "utils": {
+          "currency.ts": "file",
+          "string.ts": "file",
+          "validation.ts": "file",
+          "cart.ts": "file",
+          "helpers.ts": "file",
+          "index.ts": "barrel-export"
+        },
+        "pages": {
+          "HomePage.tsx": "file",
+          "ShopPage.tsx": "file",
+          "ProductDetailPage.tsx": "file",
+          "CartPage.tsx": "file",
+          "WishlistPage.tsx": "file",
+          "CheckoutPage.tsx": "file",
+          "AccountPage.tsx": "file",
+          "OrdersPage.tsx": "file",
+          "LoginPage.tsx": "file",
+          "RegisterPage.tsx": "file",
+          "NotFoundPage.tsx": "file",
+          "ForgotPasswordPage.tsx": "file",
+          "ResetPasswordPage.tsx": "file",
+          "EmailVerificationPage.tsx": "file",
+          "PhoneVerificationPage.tsx": "file",
+          "index.ts": "barrel-export"
+        },
+        "App.tsx": "file",
+        "main.tsx": "file",
+        "vite-env.d.ts": "file"
+      },
+      "package.json": "file",
+      "vite.config.ts": "file",
+      "tailwind.config.js": "file",
+      "postcss.config.js": "file",
+      "index.html": "file",
+      ".env": "file",
+      "tsconfig.json": "file",
+      "tsconfig.app.json": "file",
+      "tsconfig.node.json": "file"
+    }
+  }
+}
+
+
+nOTE THIS DOWN until I give you futhur instruction

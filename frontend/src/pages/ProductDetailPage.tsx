@@ -1,77 +1,127 @@
-import { useParams } from 'react-router-dom';
-import { useState } from 'react';
+// frontend/src/pages/ProductDetailPage.tsx
+import React, { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useProductDetail } from '../features/products/hooks/useProducts';
 import { useAddToCart } from '../features/cart/hooks/useCart';
-import { useToggleWishlist } from '../features/wishlist/hooks/useWishlist';
+import { useCart } from '../features/cart/hooks/useCart';        // ← added for live refetch
+import { formatCurrency } from '../utils/currency';
 
-const ProductDetailPage = () => {
+const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: product, isLoading, error } = useProductDetail(Number(id));
-  const addToCart = useAddToCart();
-  const toggleWishlist = useToggleWishlist();
+  const productId = Number(id);
+  const navigate = useNavigate();
 
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
-  const [quantity, setQuantity] = useState(1);
+  const { data: product, isLoading, error } = useProductDetail(productId);
+  const addToCartMutation = useAddToCart();                    // ← your original hook style
+  const { refetch: refetchCart } = useCart();
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center text-xl">Loading premium product...</div>;
-  if (error || !product) return <div className="min-h-screen flex items-center justify-center text-red-500 text-xl">Sorry, product not found</div>;
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [quantity, setQuantity] = useState<number>(1);
 
   const handleAddToCart = () => {
-    if (!selectedSize || !selectedColor) {
-      alert('Please select size and color first');
+    if (!product) return;
+
+    if (product.available_sizes?.length > 0 && !selectedSize) {
+      alert('Please select a size');
       return;
     }
-    addToCart.mutate({
-      product,
-      quantity,
-      size: selectedSize,
-      color: selectedColor,
-    });
+    if (product.available_colors?.length > 0 && !selectedColor) {
+      alert('Please select a color');
+      return;
+    }
+
+    addToCartMutation.mutate(
+      {
+        product_id: product.id,
+        quantity,
+        selected_size: selectedSize || undefined,
+        selected_color: selectedColor || undefined,
+      },
+      {
+        onSuccess: () => {
+          refetchCart();                                 // ← instantly updates cart count & data
+          alert(`${product.name} added to cart successfully!`); // you can replace with toast later
+          navigate('/cart');                             // ← redirects to cart page
+        },
+        onError: (err: any) => {
+          alert(err?.response?.data?.error || 'Failed to add to cart. Please try again.');
+        },
+      }
+    );
   };
 
-  // Defensive category handling — fixes TS "Property 'name' does not exist on type 'never'"
-  const categoryName = product.category
-    ? (typeof product.category === 'object' && product.category !== null && 'name' in product.category
-        ? (product.category as any).name
-        : String(product.category))
-    : 'Men’s Apparel';
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <p className="text-white text-2xl font-medium">Loading premium product...</p>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="max-w-7xl mx-auto px-6 py-20 text-center min-h-screen bg-black text-white">
+        <p className="text-3xl text-red-500 font-medium mb-8">Sorry, product not found</p>
+        <Link
+          to="/shop"
+          className="inline-block px-8 py-4 bg-white text-black rounded-3xl font-medium hover:bg-gray-200 transition-colors"
+        >
+          ← Back to Shop
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-white pt-20">
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-8">
-          Shop &gt; {categoryName} &gt; {product.name}
+    <div className="max-w-7xl mx-auto px-6 py-12 bg-black text-white">
+      <div className="grid lg:grid-cols-2 gap-16">
+        {/* Product Image */}
+        <div className="aspect-square rounded-3xl overflow-hidden bg-zinc-900 border border-zinc-800">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-full h-full object-cover"
+          />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          <img 
-            src={product.image} 
-            alt={product.name} 
-            className="w-full rounded-3xl shadow-2xl hover:scale-[1.02] transition-transform duration-300" 
-          />
-          
-          <div>
-            <div className="flex justify-between items-start">
-              <h1 className="text-4xl font-bold tracking-tight">{product.name}</h1>
-              <button 
-                onClick={() => toggleWishlist.mutate(product.id)} 
-                className="text-3xl hover:scale-110 transition-transform"
-              >
-                ♡
-              </button>
-            </div>
-            <p className="text-3xl font-semibold text-black mt-2">৳{product.final_price}</p>
-            
-            <div className="mt-8">
-              <h3 className="font-medium mb-3">Available Sizes</h3>
+        {/* Product Info */}
+        <div>
+          <h1 className="text-5xl font-bold tracking-tight mb-2">{product.name}</h1>
+          {product.category_name && (
+            <p className="text-gray-400 text-xl mb-6">{product.category_name}</p>
+          )}
+
+          <div className="flex items-baseline gap-4 mb-10">
+            <span className="text-5xl font-semibold">
+              {formatCurrency(parseFloat(product.final_price))}
+            </span>
+            {product.price && parseFloat(product.price) > parseFloat(product.final_price) && (
+              <span className="text-3xl text-gray-500 line-through">
+                {formatCurrency(parseFloat(product.price))}
+              </span>
+            )}
+          </div>
+
+          {product.description && (
+            <p className="text-gray-300 text-lg leading-relaxed mb-12">
+              {product.description}
+            </p>
+          )}
+
+          {/* Sizes */}
+          {product.available_sizes?.length > 0 && (
+            <div className="mb-8">
+              <h3 className="font-medium mb-4 text-lg">Size</h3>
               <div className="flex flex-wrap gap-3">
-                {product.available_sizes.map(size => (
+                {product.available_sizes.map((size: string) => (
                   <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`border px-6 py-3 rounded-2xl font-medium transition-all ${
-                      selectedSize === size ? 'bg-black text-white' : 'border-black hover:bg-black hover:text-white'
+                    className={`px-6 py-3 border rounded-2xl font-medium transition-all ${
+                      selectedSize === size
+                        ? 'bg-white text-black border-white'
+                        : 'border-gray-700 hover:border-gray-400'
                     }`}
                   >
                     {size}
@@ -79,53 +129,46 @@ const ProductDetailPage = () => {
                 ))}
               </div>
             </div>
+          )}
 
-            <div className="mt-8">
-              <h3 className="font-medium mb-3">Colors</h3>
+          {/* Colors */}
+          {product.available_colors?.length > 0 && (
+            <div className="mb-12">
+              <h3 className="font-medium mb-4 text-lg">Color</h3>
               <div className="flex flex-wrap gap-3">
-                {product.available_colors.map(color => (
+                {product.available_colors.map((color: string) => (
                   <button
                     key={color}
                     onClick={() => setSelectedColor(color)}
-                    className={`w-9 h-9 rounded-2xl border-2 transition-all ${
-                      selectedColor === color ? 'border-black scale-110' : 'border-gray-300'
+                    className={`px-6 py-3 border rounded-2xl font-medium capitalize transition-all ${
+                      selectedColor === color
+                        ? 'bg-white text-black border-white'
+                        : 'border-gray-700 hover:border-gray-400'
                     }`}
-                    style={{ backgroundColor: color.toLowerCase() }}
-                  />
+                  >
+                    {color}
+                  </button>
                 ))}
               </div>
             </div>
+          )}
 
-            <div className="mt-8">
-              <h3 className="font-medium mb-3">Quantity</h3>
-              <div className="flex items-center gap-4">
-                <button 
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-10 h-10 border border-black rounded-2xl flex items-center justify-center text-xl font-medium hover:bg-gray-100"
-                >
-                  −
-                </button>
-                <span className="text-2xl font-semibold w-12 text-center">{quantity}</span>
-                <button 
-                  onClick={() => setQuantity(quantity + 1)}
-                  className="w-10 h-10 border border-black rounded-2xl flex items-center justify-center text-xl font-medium hover:bg-gray-100"
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
+          {/* Quantity + Add to Cart */}
+          <div className="flex items-center gap-5">
+            <input
+              type="number"
+              min="1"
+              value={quantity}
+              onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+              className="w-24 text-center border border-gray-700 bg-transparent rounded-3xl py-4 text-xl focus:outline-none focus:border-white"
+            />
             <button
               onClick={handleAddToCart}
-              className="mt-12 w-full bg-black text-white py-6 text-xl font-semibold rounded-3xl hover:bg-gray-800 transition-colors"
+              disabled={addToCartMutation.isPending}
+              className="flex-1 py-5 text-xl font-semibold bg-white text-black rounded-3xl hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Add to Cart — ৳{(product.final_price * quantity).toFixed(0)}
+              {addToCartMutation.isPending ? 'ADDING TO CART...' : 'ADD TO CART'}
             </button>
-
-            <div className="mt-12 prose max-w-none">
-              <h3 className="font-semibold">Description</h3>
-              <p>{product.description}</p>
-            </div>
           </div>
         </div>
       </div>
