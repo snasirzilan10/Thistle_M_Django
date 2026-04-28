@@ -1,0 +1,512 @@
+ProductCArd.tsx
+"
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Product } from '../types';
+import { formatCurrency } from '../../../utils/currency';
+
+interface ProductCardProps {
+  product: Product;
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const discountPercent = product.discount_price && product.price
+    ? Math.round(
+        ((parseFloat(product.price) - parseFloat(product.discount_price)) /
+          parseFloat(product.price)) * 100
+      )
+    : 0;
+
+  // === CRITICAL FIX: Full absolute image URL from Django media ===
+  const imageUrl = product.image 
+    ? `http://127.0.0.1:8000${product.image}` 
+    : 'https://picsum.photos/id/1015/400/400';
+
+  return (
+    <Link
+      to={`/product/${product.id}`}
+      className="group block bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-gray-200"
+    >
+      <div className="relative aspect-square overflow-hidden">
+        <img
+          src={imageUrl}
+          alt={product.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            // Fallback if image fails to load
+            (e.target as HTMLImageElement).src = 'https://picsum.photos/id/1015/400/400';
+          }}
+        />
+        
+        {discountPercent > 0 && (
+          <div className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+            -{discountPercent}%
+          </div>
+        )}
+      </div>
+
+      <div className="p-4">
+        <h3 className="font-semibold text-lg leading-tight line-clamp-2 mb-1 group-hover:text-blue-600 transition-colors">
+          {product.name}
+        </h3>
+        
+        <p className="text-sm text-gray-500 mb-3 line-clamp-2">
+          {product.description?.substring(0, 80)}...
+        </p>
+
+        <div className="flex items-baseline gap-2">
+          <span className="text-2xl font-bold text-gray-900">
+            {formatCurrency(parseFloat(product.final_price))}
+          </span>
+          {parseFloat(product.price) > parseFloat(product.final_price) && (
+            <span className="text-sm text-gray-400 line-through">
+              {formatCurrency(parseFloat(product.price))}
+            </span>
+          )}
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-1">
+          {product.available_sizes?.slice(0, 4).map((size) => (
+            <span
+              key={size}
+              className="text-[10px] font-medium px-2 py-1 bg-gray-100 rounded-md"
+            >
+              {size}
+            </span>
+          ))}
+        </div>
+      </div>
+    </Link>
+  );
+};
+
+export default ProductCard;
+"
+
+ShopPage.tsx
+"
+import React from 'react';
+import { useProducts } from '../features/products/hooks/useProducts';
+import ProductCard from '../features/products/components/ProductCard';
+
+const ShopPage: React.FC = () => {
+  const { data: products = [], isLoading, error } = useProducts();
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="animate-pulse bg-gray-200 rounded-2xl h-96" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-12 text-center">
+        <p className="text-red-500">Failed to load products. Please try again.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold tracking-tight">Shop All Premium Apparel</h1>
+        <p className="text-gray-500">{products.length} products</p>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        {products.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
+      </div>
+
+      {products.length === 0 && (
+        <div className="text-center py-20">
+          <p className="text-2xl text-gray-400">No products found</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ShopPage;
+"
+
+ProductDetailPage.tsx
+"
+// frontend/src/pages/ProductDetailPage.tsx
+import React, { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useProductDetail } from '../features/products/hooks/useProducts';   // ← corrected path + file
+import { useAddToCart } from '../features/cart/hooks/useCart';
+import { useCart } from '../features/cart/hooks/useCart';
+import { formatCurrency } from '../utils/currency';
+
+const ProductDetailPage: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const productId = Number(id);
+  const navigate = useNavigate();
+
+  const { data: product, isLoading, error } = useProductDetail(productId);
+  const addToCartMutation = useAddToCart();
+  const { refetch: refetchCart } = useCart();
+
+  const [selectedSize, setSelectedSize] = useState<string>('');
+  const [selectedColor, setSelectedColor] = useState<string>('');
+  const [quantity, setQuantity] = useState<number>(1);
+
+  const handleAddToCart = () => {
+    if (!product) return;
+
+    if (product.available_sizes?.length > 0 && !selectedSize) {
+      alert('Please select a size');
+      return;
+    }
+    if (product.available_colors?.length > 0 && !selectedColor) {
+      alert('Please select a color');
+      return;
+    }
+
+    addToCartMutation.mutate(
+      {
+        product_id: product.id,
+        quantity,
+        selected_size: selectedSize || undefined,
+        selected_color: selectedColor || undefined,
+      },
+      {
+        onSuccess: () => {
+          refetchCart();
+          alert(`${product.name} added to cart successfully!`);
+          navigate('/cart');
+        },
+        onError: (err: any) => {
+          alert(err?.response?.data?.error || 'Failed to add to cart. Please try again.');
+        },
+      }
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <p className="text-white text-2xl font-medium">Loading premium product...</p>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="max-w-7xl mx-auto px-6 py-20 text-center min-h-screen bg-black text-white">
+        <p className="text-3xl text-red-500 font-medium mb-8">Sorry, product not found</p>
+        <Link
+          to="/shop"
+          className="inline-block px-8 py-4 bg-white text-black rounded-3xl font-medium hover:bg-gray-200 transition-colors"
+        >
+          ← Back to Shop
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex min-h-screen bg-white">
+      {/* === LEFT: PRODUCT PICTURE (FULL HEIGHT - EXACTLY LIKE SCREENSHOT) === */}
+      <div className="flex-1 bg-black flex items-center justify-center relative overflow-hidden">
+        <img
+          src={product.image}
+          alt={product.name}
+          className="max-h-screen w-auto object-contain"
+        />
+      </div>
+
+      {/* === RIGHT: PRODUCT INFO (EXACTLY LIKE SCREENSHOT) === */}
+      <div className="flex-1 p-8 lg:p-12 flex flex-col max-w-2xl">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
+          <span>Men&apos;s Apparel</span>
+          <span className="text-gray-300">/</span>
+          <span className="font-medium text-black">{product.category_name || 'Category'}</span>
+        </div>
+
+        {/* Title (Montserrat Extra Bold) */}
+        <h1 className="f-mont-eb text-4xl leading-tight text-black mb-2">
+          {product.name}
+        </h1>
+
+        {/* Price */}
+        <div className="flex items-baseline gap-4 mb-8">
+          <span className="text-4xl font-semibold text-black">
+            {formatCurrency(parseFloat(product.final_price))}
+          </span>
+          {product.price && parseFloat(product.price) > parseFloat(product.final_price) && (
+            <span className="text-3xl text-gray-400 line-through">
+              {formatCurrency(parseFloat(product.price))}
+            </span>
+          )}
+        </div>
+
+        {/* Description */}
+        {product.description && (
+          <p className="text-gray-600 leading-relaxed mb-10">
+            {product.description}
+          </p>
+        )}
+
+        {/* Sizes */}
+        {product.available_sizes?.length > 0 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold">Size</h3>
+              <a href="#" className="text-sm text-blue-600 hover:underline">Size Guide</a>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {product.available_sizes.map((size: string) => (
+                <button
+                  key={size}
+                  onClick={() => setSelectedSize(size)}
+                  className={`w-11 h-11 rounded-2xl border flex items-center justify-center text-sm font-medium transition-all ${
+                    selectedSize === size
+                      ? 'bg-black text-white border-black'
+                      : 'border-gray-300 hover:border-black'
+                  }`}
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Colors */}
+        {product.available_colors?.length > 0 && (
+          <div className="mb-10">
+            <h3 className="font-medium mb-3">Color</h3>
+            <div className="flex flex-wrap gap-3">
+              {product.available_colors.map((color: string) => (
+                <button
+                  key={color}
+                  onClick={() => setSelectedColor(color)}
+                  className={`px-6 py-3 border rounded-2xl font-medium capitalize transition-all ${
+                    selectedColor === color
+                      ? 'bg-black text-white border-black'
+                      : 'border-gray-300 hover:border-black'
+                  }`}
+                >
+                  {color}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Quantity + Add to Cart */}
+        <div className="flex items-center gap-4 mt-auto">
+          <input
+            type="number"
+            min="1"
+            value={quantity}
+            onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
+            className="w-24 text-center border border-gray-300 rounded-3xl py-4 text-xl focus:outline-none focus:border-black"
+          />
+          <button
+            onClick={handleAddToCart}
+            disabled={addToCartMutation.isPending}
+            className="flex-1 py-5 text-xl font-semibold bg-black text-white rounded-3xl hover:bg-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {addToCartMutation.isPending ? 'ADDING TO CART...' : 'ADD TO CART'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProductDetailPage;
+
+"
+
+index.ts is right outside the common folder
+"
+
+// Barrel export - import everything from here
+export { default as Navbar } from './common/Navbar';
+export { default as Footer } from './common/Footer';
+export { default as Button } from './ui/Button';
+export { default as Input } from './ui/Input';
+export { default as NewsletterForm } from './forms/NewsletterForm';
+export { default as LandingPage } from './layout/LandingPage';
+export { default as TopBar } from './common/TopBar';
+"
+
+
+Navbar.tsx
+"
+
+
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+
+const Navbar = () => {
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/shop?search=${encodeURIComponent(searchTerm.trim())}`);
+      setSearchTerm(''); // clear after search
+    }
+  };
+
+  return (
+    <nav className="bg-white border-b sticky top-0 z-50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="h-16 flex items-center justify-between">
+          
+          {/* Logo */}
+          <Link to="/" className="text-3xl font-bold tracking-tighter text-black f-mont-eb">
+            THISTLE
+          </Link>
+
+          {/* Main Category Navigation */}
+          <div className="hidden md:flex items-center gap-x-8 text-sm font-medium">
+            <Link to="/shop?category=topwear" className="hover:text-black transition-colors">Topwear</Link>
+            <Link to="/shop?category=bottomwear" className="hover:text-black transition-colors">Bottomwear</Link>
+            <Link to="/shop?category=shoes" className="hover:text-black transition-colors">Shoes</Link>
+            <Link to="/shop?category=backpack" className="hover:text-black transition-colors">Backpack &amp; Luggages</Link>
+            <Link to="/shop?category=accessories" className="hover:text-black transition-colors">Accessories</Link>
+          </div>
+
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="flex-1 max-w-md mx-8">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search premium gear..."
+                className="w-full bg-gray-100 border border-transparent focus:border-black rounded-3xl py-3 px-6 text-sm outline-none transition-all"
+              />
+              <button
+                type="submit"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black transition-colors"
+              >
+                🔎
+              </button>
+            </div>
+          </form>
+
+          {/* Mobile menu button (future-proof) */}
+          <button className="md:hidden text-2xl">
+            ☰
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export default Navbar;
+"
+
+MainLayout.tsx
+"
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import Navbar from '../common/Navbar';
+import Footer from '../common/Footer';
+import TopBar from '../common/TopBar';     // ← Added
+import { Toaster } from 'react-hot-toast';
+
+const MainLayout: React.FC = () => {
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* === TOP BAR (Nike-style premium utility bar) === */}
+      <TopBar />
+      
+      <Navbar />
+      <main className="flex-1">
+        <Outlet />   {/* ← This is what fixes the 'children' error in App.tsx */}
+      </main>
+      <Footer />
+
+      {/* Top 0.01% Global Toaster – used by FAANG e-commerce apps */}
+      <Toaster 
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            borderRadius: '10px',
+            fontSize: '15px',
+            padding: '16px 20px',
+          },
+        }}
+      />
+    </div>
+  );
+};
+
+export default MainLayout;
+"
+
+
+
+App.tsx
+"
+import { Routes, Route } from 'react-router-dom';
+import {
+  HomePage,
+  ShopPage,
+  ProductDetailPage,
+  CartPage,
+  WishlistPage,
+  CheckoutPage,
+  AccountPage,
+  OrdersPage,
+  LoginPage,
+  RegisterPage,
+  NotFoundPage,
+} from './pages';
+
+import MainLayout from './components/layout/MainLayout';
+import ProtectedRoute from './components/common/ProtectedRoute';
+
+function App() {
+  return (
+    <Routes>
+      {/* PUBLIC PAGES - No login required */}
+      <Route path="/" element={<HomePage />} />
+      <Route path="/shop" element={<ShopPage />} />
+      <Route path="/product/:id" element={<ProductDetailPage />} />
+      <Route path="/cart" element={<CartPage />} />
+
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+
+      {/* PROTECTED PAGES - Login required */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<MainLayout />}>
+          <Route path="/wishlist" element={<WishlistPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+        </Route>
+      </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
+    </Routes>
+  );
+}
+
+export default App;
+"
+
+
+
+Now just note these down and wait for my instruction

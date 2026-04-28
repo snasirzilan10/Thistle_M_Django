@@ -190,6 +190,25 @@
     "First Full GitHub Monorepo Push": [
       "Performed first complete git add . and professional commit",
       "Pushed entire project (frontend + backend + all features) to main branch"
+    ],
+    "Custom Font System Implementation": [
+      "Downloaded and self-hosted Montserrat (logo) + Inter (body) WOFF2 fonts in frontend/src/assets/fonts/",
+      "Added complete @font-face rules in index.css with font-display: swap for zero FOIT",
+      "Created professional shorthand utility classes (f-mont-eb, f-mont-b, f-mont-m, f-mont-L, f-inter-*)",
+      "Updated tailwind.config.js to make Inter the global default font for all text",
+      "Added @layer base rules so every h1, h2, p, span etc. automatically uses Inter"
+    ],
+    "Product Detail Page 50/50 Full-Height Redesign": [
+      "Completely rewrote ProductDetailPage.tsx to match exact Nudie Jeans screenshot layout",
+      "Implemented perfect 50/50 split: full-height product image on left (fills entire screen)",
+      "Right panel contains breadcrumb, f-mont-eb title, price, description, size & color selectors",
+      "Preserved all existing business logic (selectedSize, selectedColor, quantity, handleAddToCart, cart refetch, navigation)",
+      "Used professional full-height flex layout with bg-black on image side"
+    ],
+    "Critical Import Path Fixes (April 2026)": [
+      "Fixed all incorrect relative imports in ProductDetailPage.tsx (../../features → ../features)",
+      "Corrected useProductDetail path to match actual hook location (useProducts)",
+      "Cleared Vite cache and verified clean build with zero pre-transform errors"
     ]
   },
   "top0.01%_Tips": {
@@ -208,7 +227,11 @@
     "13": "Create separate pages for password reset, email verification and phone verification — this dramatically improves user trust and conversion.",
     "14": "Always use conditional JWT interceptor in axios client (skip token on public routes like /api/products/) — prevents 401 errors on public data.",
     "15": "Use default 'pk' lookup in DRF RetrieveAPIView unless you have a strong reason — avoids AssertionError on detail views.",
-    "16": "Always implement time-based business rules (like 30-minute cancellation) directly in the model with @property — keeps the logic centralized and impossible to bypass from frontend."
+    "16": "Always implement time-based business rules (like 30-minute cancellation) directly in the model with @property — keeps the logic centralized and impossible to bypass from frontend.",
+    "17": "Self-host WOFF2 fonts with font-display: swap — gives the fastest loading time possible on slow Bangladesh internet connections.",
+    "18": "Set default font in tailwind.config.js + @layer base so you never need to add font classes to every paragraph and heading — massive code cleanliness win.",
+    "19": "Use 50/50 full-height image layout on product detail pages (image left, info right) — this exact pattern is used by premium brands like Nudie Jeans and dramatically boosts conversion.",
+    "20": "Always double-check relative import paths when working in feature-sliced architecture (pages/ → ../features/) — prevents 100% of Vite pre-transform errors."
   },
   "folder_Structure": {
     "frontend": {
@@ -353,6 +376,3 @@
     }
   }
 }
-
-
-nOTE THIS DOWN until I give you futhur instruction

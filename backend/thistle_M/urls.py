@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -116,7 +118,7 @@ urlpatterns = [
     path('api/cart/', include('cart.urls')),
     path('api/test/', test_connection),
     
-    # AUTH ENDPOINTS (now public where needed)
+    # AUTH ENDPOINTS
     path('api/auth/token/', TokenObtainPairView.as_view()),
     path('api/auth/token/refresh/', TokenRefreshView.as_view()),
     path('api/auth/register/', register_view),
@@ -125,7 +127,10 @@ urlpatterns = [
     path('api/auth/email-verify/', email_verify),
     path('api/auth/phone-verify-request/', phone_verify_request),
     path('api/auth/phone-verify-confirm/', phone_verify_confirm),
-    path('api/cart/', include('cart.urls')),
     path('api/orders/', include('orders.urls')),
     path('', root_view),
 ]
+
+# === CRITICAL: Serve media files in development (this fixes product images) ===
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

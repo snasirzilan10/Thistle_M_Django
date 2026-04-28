@@ -2,11 +2,15 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from '../common/Navbar';
 import Footer from '../common/Footer';
+import TopBar from '../common/TopBar';     // ← Added
 import { Toaster } from 'react-hot-toast';
 
 const MainLayout: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
+      {/* === TOP BAR (Nike-style premium utility bar) === */}
+      <TopBar />
+      
       <Navbar />
       <main className="flex-1">
         <Outlet />   {/* ← This is what fixes the 'children' error in App.tsx */}

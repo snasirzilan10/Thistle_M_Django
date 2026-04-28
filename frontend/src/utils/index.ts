@@ -4,3 +4,4 @@ export * from './string';
 export * from './validation';
 export * from './cart';
 export * from './helpers';
+export { getFullImageUrl } from './image';

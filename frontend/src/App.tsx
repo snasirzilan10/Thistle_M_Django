@@ -2,7 +2,6 @@ import { Routes, Route } from 'react-router-dom';
 import {
   HomePage,
   ShopPage,
-  ProductDetailPage,
   CartPage,
   WishlistPage,
   CheckoutPage,
@@ -11,10 +10,10 @@ import {
   LoginPage,
   RegisterPage,
   NotFoundPage,
-  ForgotPasswordPage,      // new
-  ResetPasswordPage,       // new
-  EmailVerificationPage,   // new
-  PhoneVerificationPage,   // new
+  ForgotPasswordPage,
+  ResetPasswordPage,
+  EmailVerificationPage,
+  PhoneVerificationPage,
 } from './pages';
 
 import MainLayout from './components/layout/MainLayout';
@@ -23,7 +22,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
+      {/* === PURE AUTH PAGES (No navbar, no footer) === */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -31,11 +30,14 @@ function App() {
       <Route path="/email-verify" element={<EmailVerificationPage />} />
       <Route path="/phone-verify" element={<PhoneVerificationPage />} />
 
-      <Route element={<ProtectedRoute />}>
-        <Route element={<MainLayout />}>
-          <Route path="/shop" element={<ShopPage />} />
-          <Route path="/product/:id" element={<ProductDetailPage />} />
-          <Route path="/cart" element={<CartPage />} />
+      {/* === ALL MAIN PAGES WITH NAVBAR + QUICK VIEW ONLY === */}
+      <Route element={<MainLayout />}>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/shop" element={<ShopPage />} />
+        <Route path="/cart" element={<CartPage />} />
+
+        {/* Protected sub-routes */}
+        <Route element={<ProtectedRoute />}>
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/account" element={<AccountPage />} />
@@ -43,6 +45,7 @@ function App() {
         </Route>
       </Route>
 
+      {/* 404 */}
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

@@ -1,9 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useProducts } from '../features/products/hooks/useProducts';
 import ProductCard from '../features/products/components/ProductCard';
+import ProductQuickViewModal from '../features/products/components/ProductQuickViewModal';
 
 const ShopPage: React.FC = () => {
   const { data: products = [], isLoading, error } = useProducts();
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+
+  const handleQuickView = (id: number) => {
+    setSelectedProductId(id);
+  };
+
+  const closeModal = () => {
+    setSelectedProductId(null);
+  };
 
   if (isLoading) {
     return (
@@ -34,7 +44,11 @@ const ShopPage: React.FC = () => {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard
+            key={product.id}
+            product={product}
+            onQuickView={handleQuickView}
+          />
         ))}
       </div>
 
@@ -42,6 +56,15 @@ const ShopPage: React.FC = () => {
         <div className="text-center py-20">
           <p className="text-2xl text-gray-400">No products found</p>
         </div>
+      )}
+
+      {/* QUICK VIEW MODAL */}
+      {selectedProductId && (
+        <ProductQuickViewModal
+          productId={selectedProductId}
+          isOpen={!!selectedProductId}
+          onClose={closeModal}
+        />
       )}
     </div>
   );
