@@ -1,9 +1,15 @@
 from django.db import models
 from django.conf import settings
-from products.models import Product  # string reference already safe
+from products.models import Product
 
 class Cart(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cart')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='cart',
+        null=True,      # ← Allows guest users
+        blank=True
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -12,7 +18,7 @@ class Cart(models.Model):
         verbose_name_plural = 'Carts'
 
     def __str__(self):
-        return f"Cart for {self.user.username}"
+        return f"Cart for {self.user.username if self.user else 'Guest'}"
 
     @property
     def total_items(self):
@@ -32,7 +38,7 @@ class CartItem(models.Model):
     added_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('cart', 'product', 'selected_size', 'selected_color')  # prevents duplicate variants
+        unique_together = ('cart', 'product', 'selected_size', 'selected_color')
         ordering = ['-added_at']
 
     def __str__(self):

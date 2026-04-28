@@ -59,14 +59,14 @@ const Navbar = () => {
           <div className="flex items-center gap-x-6">
             <Link to="/wishlist" className="text-2xl hover:text-black transition-colors">♡</Link>
             
-            <Link to="/cart" className="relative text-2xl hover:text-black transition-colors">
+           <button className="relative text-2xl hover:text-black transition-colors">
               🛒
               {cartItemCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">
                   {cartItemCount}
                 </span>
               )}
-            </Link>
+            </button>
 
             <Link to="/account" className="text-2xl hover:text-black transition-colors">👤</Link>
           </div>

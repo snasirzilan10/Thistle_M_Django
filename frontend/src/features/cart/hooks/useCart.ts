@@ -1,9 +1,9 @@
 // frontend/src/features/cart/hooks/useCart.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import apiClient from '../../../lib/api/client';   // ← fixed: default import (matches your project)
+import apiClient from '../../../lib/api/client';
 import { Cart } from '../types';
 
-// FAANG-level query key (used by top e-commerce teams)
+// FAANG-level query key
 export const CART_QUERY_KEY = ['cart'] as const;
 
 export const useCart = () => {
@@ -17,12 +17,11 @@ export const useCart = () => {
     refetchOnWindowFocus: false,
   });
 
-  // Computed cartCount so Navbar.tsx destructuring works without any change
-  const cartCount = query.data?.items?.length || 0;   // ← if your backend returns 'cart_items' instead of 'items', change this line only
+  const cartCount = query.data?.items?.length || 0;
 
   return {
     ...query,
-    cartCount,   // ← this fixes the TS2339 error in Navbar.tsx
+    cartCount,
   };
 };
 
@@ -40,7 +39,23 @@ export const useAddToCart = () => {
       return data;
     },
     onSuccess: () => {
-      // instantly refreshes navbar count + CartPage everywhere
+      queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
+    },
+  });
+};
+
+// NEW: Remove from cart hook (required by the unified modal)
+export const useRemoveFromCart = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (itemId: number) => {
+      const { data } = await apiClient.delete('/api/cart/', {
+        data: { item_id: itemId }
+      });
+      return data;
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CART_QUERY_KEY });
     },
   });

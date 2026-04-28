@@ -2,7 +2,6 @@ import { Routes, Route } from 'react-router-dom';
 import {
   HomePage,
   ShopPage,
-  CartPage,
   WishlistPage,
   CheckoutPage,
   AccountPage,
@@ -22,7 +21,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 function App() {
   return (
     <Routes>
-      {/* === PURE AUTH PAGES (No navbar, no footer) === */}
+      {/* === PURE AUTH PAGES === */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -30,13 +29,12 @@ function App() {
       <Route path="/email-verify" element={<EmailVerificationPage />} />
       <Route path="/phone-verify" element={<PhoneVerificationPage />} />
 
-      {/* === ALL MAIN PAGES WITH NAVBAR + QUICK VIEW ONLY === */}
+      {/* === MAIN PAGES (Quick View is the only cart experience) === */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/shop" element={<ShopPage />} />
-        <Route path="/cart" element={<CartPage />} />
 
-        {/* Protected sub-routes */}
+        {/* Protected routes - no dedicated cart page anymore */}
         <Route element={<ProtectedRoute />}>
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
